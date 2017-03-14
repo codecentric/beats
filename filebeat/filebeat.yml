@@ -98,10 +98,13 @@ filebeat.prospectors:
 # Configure what outputs to use when sending the data collected by the beat.
 # Multiple outputs may be used.
 
+output.kinesis:
+  foo: "bar"
+
 #-------------------------- Elasticsearch output ------------------------------
-output.elasticsearch:
+#output.elasticsearch:
   # Array of hosts to connect to.
-  hosts: ["localhost:9200"]
+  #hosts: ["localhost:9200"]
 
   # Optional protocol and basic auth credentials.
   #protocol: "https"
