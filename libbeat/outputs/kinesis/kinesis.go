@@ -1,100 +1,59 @@
 package kinesis
 
 import (
-	"fmt"
-	"os"
-	"runtime"
-
 	"github.com/elastic/beats/libbeat/common"
 	"github.com/elastic/beats/libbeat/common/op"
 	"github.com/elastic/beats/libbeat/logp"
 	"github.com/elastic/beats/libbeat/outputs"
-	"github.com/elastic/beats/libbeat/outputs/codecs/json"
 )
+
+var debugf = logp.MakeDebug("kinesis")
 
 func init() {
 	outputs.RegisterOutputPlugin("kinesis", New)
 }
 
 type kinesis struct {
-	out   *os.File
-	codec outputs.Codec
+	config kinesisConfig
 }
 
-func New(_ common.BeatInfo, config *common.Config, _ int) (outputs.Outputer, error) {
-	var unpackedConfig Config
-	err := config.Unpack(&unpackedConfig)
+// New instantiates a new kinesis output instance.
+func New(_ common.BeatInfo, cfg *common.Config, topologyExpire int) (outputs.Outputer, error) {
+	output := &kinesis{}
+	err := output.init(cfg)
 	if err != nil {
 		return nil, err
 	}
-
-	var codec outputs.Codec
-	if unpackedConfig.Codec.Namespace.IsSet() {
-		codec, err = outputs.CreateEncoder(unpackedConfig.Codec)
-		if err != nil {
-			return nil, err
-		}
-	} else {
-		codec = json.New(unpackedConfig.Pretty)
-	}
-
-	c, err := newKinesis(codec)
-	if err != nil {
-		return nil, fmt.Errorf("kinesis output initialization failed with: %v", err)
-	}
-
-	// check stdout actually being available
-	if runtime.GOOS != "windows" {
-		if _, err = c.out.Stat(); err != nil {
-			return nil, fmt.Errorf("kinesis output initialization failed with: %v", err)
-		}
-	}
-
-	return c, nil
+	return output, nil
 }
 
-func newKinesis(codec outputs.Codec) (*kinesis, error) {
-	return &kinesis{codec: codec, out: os.Stdout}, nil
+func (k *kinesis) init(cfg *common.Config) error {
+	debugf("initialize kinesis output")
+
+	config := defaultKinesisConfig
+	if err := cfg.Unpack(&config); err != nil {
+		return err
+	}
+
+	k.config = config
+	debugf("Assigned configuration to kinesis")
+
+	return nil
+
 }
 
 // Implement Outputer
-func (c *kinesis) Close() error {
+func (k *kinesis) Close() error {
 	return nil
 }
 
 var nl = []byte{'\n'}
 
-func (c *kinesis) PublishEvent(
+func (k *kinesis) PublishEvent(
 	s op.Signaler,
 	opts outputs.Options,
 	data outputs.Data,
 ) error {
-	serializedEvent, err := c.codec.Encode(data.Event)
-	if err = c.writeBuffer(serializedEvent); err != nil {
-		goto fail
-	}
-	if err = c.writeBuffer(nl); err != nil {
-		goto fail
-	}
-
 	op.SigCompleted(s)
-fail:
-	if opts.Guaranteed {
-		logp.Critical("Unable to publish events to kinesis: %v", err)
-	}
-	op.SigFailed(s, err)
-	return err
-}
-
-func (c *kinesis) writeBuffer(buf []byte) error {
-	written := 0
-	for written < len(buf) {
-		n, err := c.out.Write(buf[written:])
-		if err != nil {
-			return err
-		}
-
-		written += n
-	}
 	return nil
 }

@@ -100,6 +100,11 @@ filebeat.prospectors:
 
 output.kinesis:
   foo: "bar"
+  stream: "beats"
+
+#output.kafka:
+  #hosts: ["suppenkasper"]
+  #topic: "tight"
 
 #-------------------------- Elasticsearch output ------------------------------
 #output.elasticsearch:

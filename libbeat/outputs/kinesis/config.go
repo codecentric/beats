@@ -4,9 +4,14 @@ import (
 	"github.com/elastic/beats/libbeat/outputs"
 )
 
-type Config struct {
-	Codec outputs.CodecConfig `config:"codec"`
-
-	// old pretty settings to use if no codec is configured
-	Pretty bool `config:"pretty"`
+type kinesisConfig struct {
+	Stream            string                    `config:"stream"                validate:"required"`
+	Codec           	outputs.CodecConfig       `config:"codec"`
 }
+
+//Default Config for non mandatory settings
+var (
+	defaultKinesisConfig = kinesisConfig{
+		Stream: "",
+	}
+)
