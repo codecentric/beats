@@ -5,8 +5,8 @@ import (
 )
 
 type kinesisConfig struct {
-	Stream            string                    `config:"stream"                validate:"required"`
-	Codec           	outputs.CodecConfig       `config:"codec"`
+	Stream string              `config:"stream"                validate:"required"`
+	Codec  outputs.CodecConfig `config:"codec"`
 }
 
 //Default Config for non mandatory settings

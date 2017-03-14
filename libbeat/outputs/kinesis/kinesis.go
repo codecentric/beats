@@ -36,12 +36,12 @@ func New(_ common.BeatInfo, cfg *common.Config, topologyExpire int) (outputs.Out
 func (k *kinesisOuput) connect() error {
 
 	codec, err := outputs.CreateEncoder(k.config.Codec)
-	if(err != nil){
+	if err != nil {
 		return err
 	}
 
-	client,err := newKinesisClient(k.config.Stream, codec)
-	if(err != nil){
+	client, err := newKinesisClient(k.config.Stream, codec)
+	if err != nil {
 		return err
 	}
 
@@ -79,7 +79,7 @@ func (k *kinesisOuput) PublishEvent(
 	data outputs.Data,
 ) error {
 	err := k.client.putMessage(data)
-	if(err != nil){
+	if err != nil {
 		return err
 	}
 	op.SigCompleted(s)
