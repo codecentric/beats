@@ -13,21 +13,45 @@ func init() {
 	outputs.RegisterOutputPlugin("kinesis", New)
 }
 
-type kinesis struct {
+type kinesisOuput struct {
 	config kinesisConfig
+	client client
 }
 
 // New instantiates a new kinesis output instance.
 func New(_ common.BeatInfo, cfg *common.Config, topologyExpire int) (outputs.Outputer, error) {
-	output := &kinesis{}
+	output := &kinesisOuput{}
 	err := output.init(cfg)
+	if err != nil {
+		return nil, err
+	}
+
+	err = output.connect()
 	if err != nil {
 		return nil, err
 	}
 	return output, nil
 }
 
-func (k *kinesis) init(cfg *common.Config) error {
+func (k *kinesisOuput) connect() error {
+
+	codec, err := outputs.CreateEncoder(k.config.Codec)
+	if(err != nil){
+		return err
+	}
+
+	client,err := newKinesisClient(k.config.Stream, codec)
+	if(err != nil){
+		return err
+	}
+
+	client.connect()
+	k.client = client
+
+	return nil
+}
+
+func (k *kinesisOuput) init(cfg *common.Config) error {
 	debugf("initialize kinesis output")
 
 	config := defaultKinesisConfig
@@ -43,17 +67,21 @@ func (k *kinesis) init(cfg *common.Config) error {
 }
 
 // Implement Outputer
-func (k *kinesis) Close() error {
+func (k *kinesisOuput) Close() error {
 	return nil
 }
 
 var nl = []byte{'\n'}
 
-func (k *kinesis) PublishEvent(
+func (k *kinesisOuput) PublishEvent(
 	s op.Signaler,
 	opts outputs.Options,
 	data outputs.Data,
 ) error {
+	err := k.client.putMessage(data)
+	if(err != nil){
+		return err
+	}
 	op.SigCompleted(s)
 	return nil
 }
