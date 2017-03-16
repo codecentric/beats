@@ -11,26 +11,29 @@ import (
 type client struct {
 	stream  string
 	codec   outputs.Codec
+<<<<<<< HEAD
 	service *firehose.Firehose
+=======
+	config kinesisConfig
+	service *kinesis.Kinesis
+>>>>>>> dc84b9f1674ee1053da5ac7556c2512ad11ab24f
 }
 
-func newKinesisClient(
-	stream string,
-	writer outputs.Codec,
-) (client, error) {
+func newKinesisClient(config kinesisConfig, writer outputs.Codec) (client, error) {
 	c := client{
-		stream: stream,
+		stream: config.Stream,
 		codec:  writer,
+		config: config,
 	}
 	return c, nil
 }
 
 func (c *client) connect() error {
-	debugf("Connecting to Kinesis")
+	debugf("Connecting to Kinesis in region:", c.config.Region)
 
 	//TODO: Replace with configurable settings
 	session := session.Must(session.NewSessionWithOptions(session.Options{
-		Config: aws.Config{Region: aws.String("eu-west-1")},
+		Config: aws.Config{Region: aws.String(c.config.Region)},
 	}))
 	svc := firehose.New(session)
 
@@ -59,6 +62,9 @@ func (c *client) putMessage(data outputs.Data) error {
 	debugf("Preparing to invoke the service: %v with the params %v", c.service, params)
 
 	resp, err := c.service.PutRecord(params)
+	if err != nil {
+		debugf("Error sending records to kinesis: ", err)
+	}
 
 	debugf("Received following kinsesis response: %v and error: %v", resp, err)
 
