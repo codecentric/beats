@@ -115,3 +115,5 @@ import:
   version: 5a004441f897722c627870a981d02b29924215fa
 - package: github.com/mitchellh/hashstructure
   version: b098c52ef6beab8cd82bc4a32422cf54b890e8fa
+- package: github.com/aws/aws-sdk-go
+  version: v1.7.9
