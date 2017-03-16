@@ -40,7 +40,7 @@ func (k *kinesisOuput) connect() error {
 		return err
 	}
 
-	client, err := newKinesisClient(k.config.Stream, codec)
+	client, err := newKinesisClient(k.config, codec)
 	if err != nil {
 		return err
 	}
@@ -61,6 +61,7 @@ func (k *kinesisOuput) init(cfg *common.Config) error {
 
 	k.config = config
 	debugf("Assigned configuration to kinesis")
+
 
 	return nil
 
