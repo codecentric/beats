@@ -99,8 +99,7 @@ filebeat.prospectors:
 # Multiple outputs may be used.
 
 output.kinesis:
-  foo: "bar"
-  stream: "beats"
+  stream: "MyCustomer_MyModule_Log_Firehose"
 
 #output.kafka:
   #hosts: ["suppenkasper"]

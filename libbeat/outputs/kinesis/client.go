@@ -5,13 +5,13 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/kinesis"
+	"github.com/aws/aws-sdk-go/service/firehose"
 )
 
 type client struct {
 	stream  string
 	codec   outputs.Codec
-	service *kinesis.Kinesis
+	service *firehose.Firehose
 }
 
 func newKinesisClient(
@@ -30,9 +30,9 @@ func (c *client) connect() error {
 
 	//TODO: Replace with configurable settings
 	session := session.Must(session.NewSessionWithOptions(session.Options{
-		Config: aws.Config{Region: aws.String("eu-central-1")},
+		Config: aws.Config{Region: aws.String("eu-west-1")},
 	}))
-	svc := kinesis.New(session)
+	svc := firehose.New(session)
 
 	debugf("Connected to service: %v", svc)
 
@@ -49,10 +49,11 @@ func (c *client) putMessage(data outputs.Data) error {
 		return err
 	}
 
-	params := &kinesis.PutRecordInput{
-		Data:         []byte(serializedEvent),
-		PartitionKey: aws.String("1"),
-		StreamName:   aws.String(c.stream),
+	params := &firehose.PutRecordInput{
+		DeliveryStreamName:   aws.String(c.stream),
+		Record: &firehose.Record{
+			Data: []byte(serializedEvent),
+		},
 	}
 
 	debugf("Preparing to invoke the service: %v with the params %v", c.service, params)
