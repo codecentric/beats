@@ -11,12 +11,8 @@ import (
 type client struct {
 	stream  string
 	codec   outputs.Codec
-<<<<<<< HEAD
 	service *firehose.Firehose
-=======
 	config kinesisConfig
-	service *kinesis.Kinesis
->>>>>>> dc84b9f1674ee1053da5ac7556c2512ad11ab24f
 }
 
 func newKinesisClient(config kinesisConfig, writer outputs.Codec) (client, error) {
