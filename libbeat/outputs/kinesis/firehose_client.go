@@ -2,19 +2,12 @@ package kinesis
 
 import (
 	"github.com/elastic/beats/libbeat/outputs"
-	"github.com/elastic/beats/libbeat/monitoring"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/firehose"
 )
 
-var (
-	putMessageCallCount = monitoring.NewInt(outputs.Metrics, "kinesis.firehose.putMessage.call.count")
-	statWriteBytes  = monitoring.NewInt(outputs.Metrics, "kinesis.firehose.write.bytes")
-	statWriteErrors = monitoring.NewInt(outputs.Metrics, "kinesis.firehose.write.errors")
-
-)
 
 type FireHoseClient struct {
 	Client
@@ -51,7 +44,6 @@ func (c *FireHoseClient) Connect() error {
 
 func (c *FireHoseClient) PutMessage(data outputs.Data) error {
 	putMessageCallCount.Add(1)
-
 
 	serializedEvent, err := c.codec.Encode(data.Event)
 	if err != nil {
