@@ -23,7 +23,6 @@ type KinesisOuput struct {
 	client Client
 }
 
-
 // New instantiates a new kinesis output instance.
 func New(_ common.BeatInfo, cfg *common.Config, topologyExpire int) (outputs.Outputer, error) {
 	output := &KinesisOuput{}
@@ -58,7 +57,7 @@ func (k *KinesisOuput) connect() error {
 }
 
 func createClient(config KinesisConfig, codec outputs.Codec) (Client, error) {
-	if(config.Mode == "firehose"){
+	if config.Mode == "firehose" {
 		return NewFireHoseClient(config, codec)
 	} else {
 		return NewStreamClient(config, codec)

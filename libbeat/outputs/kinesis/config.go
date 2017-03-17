@@ -9,8 +9,8 @@ import (
 type KinesisConfig struct {
 	Stream string              `config:"stream"                validate:"required"`
 	Codec  outputs.CodecConfig `config:"codec"`
-	Region string `config:region`
-	Mode   string `config:mode`
+	Region string              `config:region`
+	Mode   string              `config:mode`
 }
 
 //Default Config for non mandatory settings
@@ -18,12 +18,12 @@ var (
 	defaultKinesisConfig = KinesisConfig{
 		Stream: "",
 		Region: "eu-central-1",
-		Mode: "firehose",
+		Mode:   "firehose",
 	}
 )
 
 func (c *KinesisConfig) Validate() error {
-	if c.Mode != "firehose" && c.Mode != "stream"{
+	if c.Mode != "firehose" && c.Mode != "stream" {
 		return fmt.Errorf("mode '%v' unknown, please use firehose or stream", c.Mode)
 	}
 

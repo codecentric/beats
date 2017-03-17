@@ -13,7 +13,7 @@ type FireHoseClient struct {
 	stream  string
 	codec   outputs.Codec
 	service *firehose.Firehose
-	config KinesisConfig
+	config  KinesisConfig
 }
 
 func NewFireHoseClient(config KinesisConfig, writer outputs.Codec) (*FireHoseClient, error) {
@@ -49,7 +49,7 @@ func (c *FireHoseClient) PutMessage(data outputs.Data) error {
 	}
 
 	params := &firehose.PutRecordInput{
-		DeliveryStreamName:   aws.String(c.stream),
+		DeliveryStreamName: aws.String(c.stream),
 		Record: &firehose.Record{
 			Data: []byte(serializedEvent),
 		},

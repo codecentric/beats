@@ -13,7 +13,7 @@ type StreamClient struct {
 	stream  string
 	codec   outputs.Codec
 	service *kinesis.Kinesis
-	config KinesisConfig
+	config  KinesisConfig
 }
 
 func NewStreamClient(config KinesisConfig, writer outputs.Codec) (*StreamClient, error) {
@@ -50,7 +50,7 @@ func (c *StreamClient) PutMessage(data outputs.Data) error {
 
 	params := &kinesis.PutRecordInput{
 		Data:         []byte(serializedEvent),
-	 	PartitionKey: aws.String("1"),
+		PartitionKey: aws.String("1"),
 		StreamName:   aws.String(c.stream),
 	}
 
