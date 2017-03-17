@@ -13,9 +13,14 @@ func init() {
 	outputs.RegisterOutputPlugin("kinesis", New)
 }
 
+type Client interface {
+	Connect() error
+	PutMessage(outputs.Data) error
+}
+
 type kinesisOuput struct {
 	config kinesisConfig
-	client client
+	client Client
 }
 
 // New instantiates a new kinesis output instance.
@@ -40,12 +45,12 @@ func (k *kinesisOuput) connect() error {
 		return err
 	}
 
-	client, err := newKinesisClient(k.config, codec)
+	client, err := NewFireHoseClient(k.config, codec)
 	if err != nil {
 		return err
 	}
 
-	client.connect()
+	client.Connect()
 	k.client = client
 
 	return nil
@@ -79,7 +84,7 @@ func (k *kinesisOuput) PublishEvent(
 	opts outputs.Options,
 	data outputs.Data,
 ) error {
-	err := k.client.putMessage(data)
+	err := k.client.PutMessage(data)
 	if err != nil {
 		return err
 	}
