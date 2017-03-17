@@ -26,6 +26,7 @@ func NewStreamClient(config KinesisConfig, writer outputs.Codec) (*StreamClient,
 }
 
 func (c *StreamClient) Connect() error {
+
 	debugf("Connecting to Kinesis in region:", c.config.Region)
 
 	session := session.Must(session.NewSessionWithOptions(session.Options{
@@ -42,9 +43,12 @@ func (c *StreamClient) Connect() error {
 }
 
 func (c *StreamClient) PutMessage(data outputs.Data) error {
+	putMessageCallCount.Add(1)
 
 	serializedEvent, err := c.codec.Encode(data.Event)
 	if err != nil {
+		debugf("Got the following error: %v while encoding event: %v with codec: %v", err, data.Event, c.codec)
+		statWriteErrors.Add(1)
 		return err
 	}
 
@@ -58,15 +62,14 @@ func (c *StreamClient) PutMessage(data outputs.Data) error {
 
 	resp, err := c.service.PutRecord(params)
 	if err != nil {
-		debugf("Error sending records to kinesis: ", err)
-	}
-
-	debugf("Received following kinsesis response: %v and error: %v", resp, err)
-
-	if err != nil {
-		debugf("Will abort processing due to: %v", err)
+		debugf("Received following kinsesis error: %v and response: %v", err, resp)
+		debugf("Will abort processing.")
+		statWriteErrors.Add(1)
 		return err
 	}
 
-	return nil
+	debugf("Received following kinsesis response: %v and error: %v", resp, err)
+	statWriteBytes.Add(int64(len(serializedEvent)))
+
+	return err
 }
