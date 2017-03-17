@@ -100,6 +100,8 @@ filebeat.prospectors:
 
 output.kinesis:
   stream: "MyCustomer_MyModule_Log_Firehose"
+  region: "eu-west-1"
+  mode: "firehose"
 
 #output.kafka:
   #hosts: ["suppenkasper"]

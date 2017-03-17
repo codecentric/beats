@@ -8,26 +8,26 @@ import (
 	"github.com/aws/aws-sdk-go/service/firehose"
 )
 
-type client struct {
+type FireHoseClient struct {
+	Client
 	stream  string
 	codec   outputs.Codec
 	service *firehose.Firehose
-	config kinesisConfig
+	config  KinesisConfig
 }
 
-func newKinesisClient(config kinesisConfig, writer outputs.Codec) (client, error) {
-	c := client{
+func NewFireHoseClient(config KinesisConfig, writer outputs.Codec) (*FireHoseClient, error) {
+	c := FireHoseClient{
 		stream: config.Stream,
 		codec:  writer,
 		config: config,
 	}
-	return c, nil
+	return &c, nil
 }
 
-func (c *client) connect() error {
+func (c *FireHoseClient) Connect() error {
 	debugf("Connecting to Kinesis in region:", c.config.Region)
 
-	//TODO: Replace with configurable settings
 	session := session.Must(session.NewSessionWithOptions(session.Options{
 		Config: aws.Config{Region: aws.String(c.config.Region)},
 	}))
@@ -41,7 +41,7 @@ func (c *client) connect() error {
 
 }
 
-func (c *client) putMessage(data outputs.Data) error {
+func (c *FireHoseClient) PutMessage(data outputs.Data) error {
 
 	serializedEvent, err := c.codec.Encode(data.Event)
 	if err != nil {
@@ -49,7 +49,7 @@ func (c *client) putMessage(data outputs.Data) error {
 	}
 
 	params := &firehose.PutRecordInput{
-		DeliveryStreamName:   aws.String(c.stream),
+		DeliveryStreamName: aws.String(c.stream),
 		Record: &firehose.Record{
 			Data: []byte(serializedEvent),
 		},
