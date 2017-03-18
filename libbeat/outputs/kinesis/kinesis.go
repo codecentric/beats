@@ -1,6 +1,10 @@
 package kinesis
 
 import (
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/session"
+
 	"github.com/elastic/beats/libbeat/common"
 	"github.com/elastic/beats/libbeat/common/op"
 	"github.com/elastic/beats/libbeat/logp"
@@ -56,11 +60,25 @@ func (k *KinesisOuput) connect() error {
 	return nil
 }
 
-func createClient(config KinesisConfig, codec outputs.Codec) (Client, error) {
-	if config.Mode == "firehose" {
-		return NewFireHoseClient(config, codec)
+func createClient(kinesisConfig KinesisConfig, codec outputs.Codec) (Client, error) {
+
+	debugf("Connecting to Kinesis in region:", kinesisConfig.Region)
+
+	creds := credentials.NewStaticCredentials(kinesisConfig.Key, kinesisConfig.Secret, "")
+
+	awsConfig := aws.Config{
+		Region:      aws.String(kinesisConfig.Region),
+		Credentials: creds,
+	}
+
+	session := session.Must(session.NewSessionWithOptions(
+		session.Options{Config: awsConfig},
+	))
+
+	if kinesisConfig.Mode == "firehose" {
+		return NewFireHoseClient(session, kinesisConfig, codec)
 	} else {
-		return NewStreamClient(config, codec)
+		return NewStreamClient(session, kinesisConfig, codec)
 	}
 }
 

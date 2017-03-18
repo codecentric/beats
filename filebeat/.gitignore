@@ -10,3 +10,4 @@ _meta/module.generated
 _meta/beat.yml
 _meta/beat.full.yml
 /tests/load/logs
+filebeat.local.yml
