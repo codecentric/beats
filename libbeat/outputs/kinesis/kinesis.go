@@ -2,8 +2,8 @@ package kinesis
 
 import (
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
-  "github.com/aws/aws-sdk-go/aws/credentials"
 
 	"github.com/elastic/beats/libbeat/common"
 	"github.com/elastic/beats/libbeat/common/op"
@@ -67,7 +67,7 @@ func createClient(kinesisConfig KinesisConfig, codec outputs.Codec) (Client, err
 	creds := credentials.NewStaticCredentials(kinesisConfig.Key, kinesisConfig.Secret, "")
 
 	awsConfig := aws.Config{
-		Region: aws.String(kinesisConfig.Region),
+		Region:      aws.String(kinesisConfig.Region),
 		Credentials: creds,
 	}
 

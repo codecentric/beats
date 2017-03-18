@@ -6,7 +6,6 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/firehose"
-
 )
 
 type FireHoseClient struct {
@@ -20,10 +19,10 @@ type FireHoseClient struct {
 
 func NewFireHoseClient(session *session.Session, config KinesisConfig, writer outputs.Codec) (*FireHoseClient, error) {
 	c := FireHoseClient{
-		stream: config.Stream,
+		stream:  config.Stream,
 		session: session,
-		codec:  writer,
-		config: config,
+		codec:   writer,
+		config:  config,
 	}
 	return &c, nil
 }

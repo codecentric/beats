@@ -19,10 +19,10 @@ type StreamClient struct {
 
 func NewStreamClient(session *session.Session, config KinesisConfig, writer outputs.Codec) (*StreamClient, error) {
 	c := StreamClient{
-		stream: config.Stream,
+		stream:  config.Stream,
 		session: session,
-		codec:  writer,
-		config: config,
+		codec:   writer,
+		config:  config,
 	}
 	return &c, nil
 }

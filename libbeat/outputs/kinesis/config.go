@@ -8,7 +8,7 @@ import (
 
 type KinesisConfig struct {
 	Stream string              `config:"stream"                validate:"required"`
-	Key string              	 `config:"key"                validate:"required"`
+	Key    string              `config:"key"                validate:"required"`
 	Secret string              `config:"secret"                validate:"required"`
 	Codec  outputs.CodecConfig `config:"codec"`
 	Region string              `config:region`
