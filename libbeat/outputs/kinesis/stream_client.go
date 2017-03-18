@@ -11,14 +11,16 @@ import (
 type StreamClient struct {
 	Client
 	stream  string
+	session *session.Session
 	codec   outputs.Codec
 	service *kinesis.Kinesis
 	config  KinesisConfig
 }
 
-func NewStreamClient(config KinesisConfig, writer outputs.Codec) (*StreamClient, error) {
+func NewStreamClient(session *session.Session, config KinesisConfig, writer outputs.Codec) (*StreamClient, error) {
 	c := StreamClient{
 		stream: config.Stream,
+		session: session,
 		codec:  writer,
 		config: config,
 	}
@@ -26,12 +28,8 @@ func NewStreamClient(config KinesisConfig, writer outputs.Codec) (*StreamClient,
 }
 
 func (c *StreamClient) Connect() error {
-	debugf("Connecting to Kinesis in region:", c.config.Region)
 
-	session := session.Must(session.NewSessionWithOptions(session.Options{
-		Config: aws.Config{Region: aws.String(c.config.Region)},
-	}))
-	svc := kinesis.New(session)
+	svc := kinesis.New(c.session)
 
 	debugf("Connected to service: %v", svc)
 

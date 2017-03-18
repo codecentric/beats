@@ -6,19 +6,22 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/firehose"
+
 )
 
 type FireHoseClient struct {
 	Client
 	stream  string
+	session *session.Session
 	codec   outputs.Codec
 	service *firehose.Firehose
 	config  KinesisConfig
 }
 
-func NewFireHoseClient(config KinesisConfig, writer outputs.Codec) (*FireHoseClient, error) {
+func NewFireHoseClient(session *session.Session, config KinesisConfig, writer outputs.Codec) (*FireHoseClient, error) {
 	c := FireHoseClient{
 		stream: config.Stream,
+		session: session,
 		codec:  writer,
 		config: config,
 	}
@@ -26,12 +29,8 @@ func NewFireHoseClient(config KinesisConfig, writer outputs.Codec) (*FireHoseCli
 }
 
 func (c *FireHoseClient) Connect() error {
-	debugf("Connecting to Kinesis in region:", c.config.Region)
 
-	session := session.Must(session.NewSessionWithOptions(session.Options{
-		Config: aws.Config{Region: aws.String(c.config.Region)},
-	}))
-	svc := firehose.New(session)
+	svc := firehose.New(c.session)
 
 	debugf("Connected to service: %v", svc)
 
