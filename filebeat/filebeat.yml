@@ -98,14 +98,25 @@ filebeat.prospectors:
 # Configure what outputs to use when sending the data collected by the beat.
 # Multiple outputs may be used.
 
+#----------------------------- Kinesis output ---------------------------------
 output.kinesis:
-  stream: "MyCustomer_MyModule_Log_Firehose"
+
+  #(Delivery) Stream to connect to
+  stream: "MyHose"
+
+  #AWS Region to connect to (Shared Configurations via Env or
+  # ~/.aws) are deactivated. Better put your stuff here!
   region: "eu-west-1"
+
+  #Can either be a 'firehose' or 'stream' endpoint
   mode: "firehose"
 
-#output.kafka:
-  #hosts: ["suppenkasper"]
-  #topic: "tight"
+  #User Key to connect with
+  key: "XXX"
+
+  #Secret Key to connect with
+  secret: "XXX"
+
 
 #-------------------------- Elasticsearch output ------------------------------
 #output.elasticsearch:
